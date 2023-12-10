@@ -1,41 +1,100 @@
-const int sensor1Pin = 2;   
-const int sensor2Pin = 3;   
-int count = 0;              
-unsigned long sensorTime = 0;  
+#define DELAY_TIMEOUT 1500
 
-bool sensor1crossed = false;
-bool sensor2crossed = false;
+int ir_right_pin = 2;
+int ir_left_pin = 3;
 
-void setup() {
-  pinMode(sensor1Pin, INPUT_PULLUP);
-  pinMode(sensor2Pin, INPUT_PULLUP);
-  Serial.begin(9600); 
+int ir_right_state = 0;
+int ir_left_state  = 0;
+
+
+
+int ir_right_state_last = -1;
+int ir_left_state_last  = -1;
+
+
+
+int in_counter = 0;
+int out_counter = 0;
+
+
+
+bool bWalkIn = false;
+bool bWalkOut = false;
+
+unsigned long tm;
+
+
+void setup(void)
+ {
+   Serial.begin(9600);
+   pinMode( ir_right_pin, INPUT);
+   pinMode( ir_left_pin , INPUT);
+
 }
 
-void loop() {
-  
-  walkin();
-  
+
+
+void loop(void)
+ {
+     ir_right_state = digitalRead( ir_right_pin );
+     ir_left_state =  digitalRead( ir_left_pin );
+
+     checkWalkIn();
+     checkWalkOUT();
 
 }
 
-void walkin()
+void checkWalkIn()
 {
-  int sensor1State = digitalRead(sensor1Pin);
-  int sensor2State = digitalRead(sensor2Pin);
+    if( ir_right_state != ir_right_state_last )
+    {
+         ir_right_state_last = ir_right_state;
 
-  if (sensor1State == LOW && sensor1crossed == false) 
-  {
-    sensor1crossed =true;
-    sensorTime = millis();
-    Serial.println(sensorTime);
-    Serial.println("Sensor1 crossed");
-  }
-  if (sensor2State == LOW && millis()- sensorTime<=1000)
-  {
-    count++;
-    Serial.println(count);	
-    delay(50);
-  }
-  sensor1crossed = false;
+         if( (bWalkIn == false) && ( ir_right_state == LOW ) )
+         {
+              bWalkIn = true;
+              tm = millis();
+         }
+
+     }
+     if( (millis() - tm) > DELAY_TIMEOUT )
+     {
+          bWalkIn = false;
+     }
+     if( bWalkIn && (ir_left_state == LOW) && (ir_right_state == HIGH) ){
+
+          bWalkIn = false;
+          in_counter++;
+          Serial.print("In person");
+          Serial.println(in_counter);
+     }
+
 }
+
+void checkWalkOUT()
+{
+    if( ir_left_state != ir_left_state_last )
+    {
+         ir_left_state_last = ir_left_state;
+
+         if( (bWalkOut == false) && ( ir_left_state == LOW ) )
+         {
+              bWalkOut = true;
+              tm = millis();
+         }
+
+     }
+
+     if( (millis() - tm) > DELAY_TIMEOUT )
+     {
+          bWalkOut = false;
+     }
+     if( bWalkOut && (ir_right_state == LOW) && (ir_left_state == HIGH) )
+     {
+          bWalkOut = false;
+          out_counter++;
+          Serial.print("Out person");
+          Serial.println(out_counter);
+     }
+}
+
