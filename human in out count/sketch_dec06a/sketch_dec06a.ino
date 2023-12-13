@@ -1,7 +1,7 @@
 #define DELAY_TIMEOUT 1500
 
-int ir_right_pin = 2;
-int ir_left_pin = 3;
+int ir_right_pin = 14;
+int ir_left_pin = 27;
 
 int ir_right_state = 0;
 int ir_left_state  = 0;
@@ -23,13 +23,14 @@ bool bWalkOut = false;
 
 unsigned long tm;
 
-
+bool condition1 = false;
+bool condition2 = false;
 void setup(void)
  {
    Serial.begin(9600);
    pinMode( ir_right_pin, INPUT);
    pinMode( ir_left_pin , INPUT);
-
+ 
 }
 
 
@@ -38,10 +39,8 @@ void loop(void)
  {
      ir_right_state = digitalRead( ir_right_pin );
      ir_left_state =  digitalRead( ir_left_pin );
-
      checkWalkIn();
      checkWalkOUT();
-
 }
 
 void checkWalkIn()
