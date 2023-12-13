@@ -174,6 +174,7 @@ void monitorSensorTagButtons(BLEDevice peripheral)
  
   while (peripheral.connected() ) {
 
+
     // check if the value of the simple key characteristic has been updated
     if (simpleKeyCharacteristic.valueUpdated()) {
       // yes, get the value, characteristic is 1 byte so use byte value
@@ -264,10 +265,20 @@ void occupency_mqtt()
     if(seat_sensor<200)
     {
       seat_occupied = true;
+      if (millis() - left_human_update_time > 5000) 
+     {
+        String message = "Device ID:Gateway1,number of person in the bus:  " + String(a)+"  "+"Driver Seat Occupied:  "+ String(seat_occupied);
+        mqttClient.publish("/hello/text",message.c_str());
+        Serial.println("Published Number of person in the bus & Driver Sit");
+        Serial.println(a);
+
+        left_human_update_time = millis();
+      }
     }
     if(seat_sensor>200)
     {
       seat_occupied = false;
+    
     }
 
   if (millis() - left_human_update_time > 5000) 
@@ -288,10 +299,8 @@ void loop()
     if (!mqttClient.connected())
         reconnect();
     
-    
-
-
     occupency_mqtt();
+    
     bluetooth();
 
 
