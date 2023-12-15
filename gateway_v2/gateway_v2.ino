@@ -112,6 +112,8 @@ void setup()
 
   pinMode( ir_right_pin, INPUT);
   pinMode( ir_left_pin , INPUT);
+  pinMode(34, INPUT);
+  attachInterrupt(digitalPinToInterrupt(34), ble_decision, CHANGE);
 
 }
 
@@ -204,6 +206,13 @@ void monitorSensorTagButtons(BLEDevice peripheral)
 }
 
 
+void bluetooth2()
+{
+  BLEDevice peripheral = BLE.available();
+  peripheral.disconnect();
+}
+
+
 void checkWalkIn()
 {
     if( ir_right_state != ir_right_state_last )
@@ -262,9 +271,6 @@ void occupency_mqtt()
     checkWalkOUT();
 
     a  = in_counter - out_counter;
-    seat_sensor = analogRead(34);
-    if(seat_sensor<200)
-    {
       seat_occupied = true;
       if (millis() - left_human_update_time > 5000) 
      {
@@ -275,20 +281,7 @@ void occupency_mqtt()
 
         left_human_update_time = millis();
       }
-    }
-    if(seat_sensor>200)
-    {
-      seat_occupied = false;
     
-    }
-
-  if (millis() - left_human_update_time > 5000) 
-     {
-        String message = "Device ID:Gateway1,number of person in the bus:  " + String(a)+"  "+"Driver Seat Occupied:  "+ String(seat_occupied);
-        mqttClient.publish("/hello/text",message.c_str());
-        Serial.println("Published Number of person in the bus & Driver Sit");
-        left_human_update_time = millis();
-      }
 }
 
 void loop() 
@@ -300,13 +293,36 @@ void loop()
     if (!mqttClient.connected())
         reconnect();
     
-    occupency_mqtt();
+    //occupency_mqtt();
     
-    bluetooth();
+    //bluetooth();
 
 
+    if(seat_occupied == false)
+    {
+      //bluetooth();
+      Serial.println("false");
+    }
 
-    
+    if(seat_occupied == true)
+    {
+      //bluetooth2();
+      //occupency_mqtt();
+      Serial.println("true");
+    }
 }
 
-
+void ble_decision()
+{
+  if(digitalRead(34) == 0)
+  {   
+    
+     seat_occupied = false;
+    
+  }
+  if (digitalRead(34) == 1) 
+  {
+    seat_occupied = true;
+   
+  }
+}
