@@ -7,7 +7,7 @@
 #define DELAY_TIMEOUT 1500
 
 //Wifi
-const char* SSID = "y9";
+const char* SSID = "Y9s";
 const char* PWD = "12345678";
 
 
