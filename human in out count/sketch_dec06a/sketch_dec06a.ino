@@ -16,7 +16,7 @@ int ir_left_state_last  = -1;
 int in_counter = 0;
 int out_counter = 0;
 
-
+int people_inside_bus = 0;
 
 bool bWalkIn = false;
 bool bWalkOut = false;
@@ -41,6 +41,9 @@ void loop(void)
      ir_left_state =  digitalRead( ir_left_pin );
      checkWalkIn();
      checkWalkOUT();
+     //people_inside_bus  = in_counter - out_counter;
+     //Serial.println("People in side bus: ");
+     //Serial.println(people_inside_bus);
 }
 
 void checkWalkIn()
@@ -64,6 +67,7 @@ void checkWalkIn()
 
           bWalkIn = false;
           in_counter++;
+         
           Serial.print("In person");
           Serial.println(in_counter);
      }
@@ -96,4 +100,3 @@ void checkWalkOUT()
           Serial.println(out_counter);
      }
 }
-
